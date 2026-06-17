@@ -1,0 +1,13 @@
+# Entorno virtual específico
+venv/
+
+# Caché de Python
+__pycache__/
+*.pyc
+
+# Ejecutables y binarios nativos
+*.exe
+*.bin
+*.elf
+*.out
+reproductor
