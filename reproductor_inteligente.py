@@ -46,6 +46,7 @@ class Reproductor:
         if self.estado_proceso!=None:
             self.estado_proceso.kill()
         self.estado_proceso=subprocess.Popen([self.motor,str(self.canciones[self.indice_actual])])
+        print(f"Ahora escuchamos {self.canciones[self.indice_actual].name}.")
 
     def menu_canciones(self):
         clase_comandos=Comandos()
