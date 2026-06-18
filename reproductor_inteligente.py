@@ -1,44 +1,57 @@
 from pathlib import Path
+import keyword
 import subprocess
-ruta_canciones = Path("/home/dragon/Música")
-reproducir = "./reproductor"
-formatos=['.mp3','.ogg','.flac','.wav']
-def reproduceme():
-    canciones=list()
-    for archivo in ruta_canciones.rglob("*"):
-        if archivo.is_file() and archivo.suffix.lower() in formatos:
-            canciones.append(archivo)
-    if not canciones:
-        print("No se encontraron canciones")
-        return
-    while True:
-        print("-"*40)
-        print("Canciones encontradas\n")
-        print("-"*40)
-        for i,cancion in enumerate(canciones):
-            print(f"[{i+1}]{cancion.name}")
-        print("[0]Salir")
-        try:
-            eleccion=int(input("Elige la cancion: "))
-            if eleccion==0:
-                print("Adios...")
-                break
-            elif 1<=eleccion<=len(canciones):
-                cancion_selecionada=canciones[eleccion-1]
-                print(f"Reproduciendo {cancion_selecionada.name}")
-                subprocess.run([reproducir,str(cancion_selecionada)],check=True)
-            else:
-                print("Opcion no valida")
-        except ValueError:
-            print("Ingresa un número tarado.")
-        except KeyboardInterrupt:
-            print("Operacion anulada")
-            break
-        except Exception as e:
-            print(f"Se detecto el siguiente error {e}")
+import threading
+import time
 
-if __name__=="__main__":
-    if ruta_canciones.exists():
-        reproduceme()
-    else:
-        print("No existe la carpeta seleccionada")
+class Reproductor:
+    def __init__(self):
+        self.boveda_canciones = Path("/home/dragon/Música/")
+        self.motor="./reproductor"
+        self.formatos=[".mp3",".ogg",".flac",".wav"]
+        self.canciones=list()
+    def escanear_boveda(self):
+        self.canciones=list()
+        for archivo in self.boveda_canciones.rglob("*"):
+            if archivo.is_file() and archivo.suffix.lower() in self.formatos:
+                self.canciones.append(archivo)
+        if not self.canciones:
+            print(f"No se han detectado canciones en tu carpeta {self.boveda_canciones}")
+    
+    def reproducir(self):
+        try:
+            seleccion=int(input('Selecciona un canción: '))
+            if 0<seleccion<=len(self.canciones):
+                subprocess.run([self.motor,str(self.canciones[seleccion-1])],check=True)
+                return True
+            elif seleccion==0:
+                return False
+            else:
+                print('Seleccione un valor valido')
+                return True
+        except ValueError:
+            print("Digite un numero de la lista por favor")
+            return True
+        except KeyboardInterrupt:
+            print("Se ha detenido la canción")
+        except Exception as e:
+            print(f"Ocurrio el sgte error {e}")
+    def menu_canciones(self):
+        self.escanear_boveda()
+        if not self.canciones:
+            return None
+        while True:
+            print('-'*40)
+            for i,cancion in enumerate(self.canciones):
+                print(f"[{i+1}] {cancion.name}")
+            print(f'[0] Salir')
+            print('-'*40)
+            if not self.reproducir():
+                print('Adios...')
+                break
+class Teclado:
+    def __init__(self):
+        self.siguiente
+        self.stop
+        self.anterior
+        self.pausa
