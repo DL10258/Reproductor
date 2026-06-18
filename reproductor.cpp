@@ -19,7 +19,7 @@ int main(int argc,char** argv){
         ma_engine_uninit(&motor);
         return -1;
     }
-    std::cout<<"Ahi va la cancion cholo..."<<std::endl;
+    //std::cout<<"Ahi va la cancion cholo..."<<std::endl;
     ma_sound_start(&sound);
     while (ma_sound_is_playing(&sound)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
