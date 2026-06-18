@@ -75,6 +75,7 @@ class Reproductor:
                 elif comando == clase_comandos.params[2]: #comando help
                     clase_comandos.ayuda()
                 elif comando == clase_comandos.params[3]: #comando salir
+                    if self.estado_proceso!=None:self.estado_proceso.terminate()
                     print("Adios...")
                     break
                 elif comando == clase_comandos.params[4]: #comando canciones
@@ -88,6 +89,7 @@ class Reproductor:
                     self.indice_actual=int(comando)-1
                     self.reproducir()
                 elif int(comando)==0:
+                    if self.estado_proceso!=None:self.estado_proceso.terminate()
                     print("Adios...")
                     break
                 else:
