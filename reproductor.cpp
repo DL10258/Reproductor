@@ -24,7 +24,7 @@ int main(int argc,char** argv){
     while (ma_sound_is_playing(&sound)) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
-    std::cout<<"Se acabo cholo"<<std::endl;
+    //std::cout<<"Se acabo cholo"<<std::endl;
     ma_sound_uninit(&sound);
     ma_engine_uninit(&motor);
     return 0;
