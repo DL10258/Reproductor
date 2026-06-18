@@ -87,6 +87,14 @@ class Reproductor:
                 if 0<=int(comando)-1<=len(self.canciones)-1:
                     self.indice_actual=int(comando)-1
                     self.reproducir()
+                elif int(comando)==0:
+                    print("Adios...")
+                    break
                 else:
                     print("Digita un numero correcto.Mas info con <canciones>")
+            else:
+                print("Comando no reconocido. Escriba <help> para mas informacion")
 
+if __name__=="__main__":
+    j_reproductor=Reproductor()
+    j_reproductor.menu_canciones()
