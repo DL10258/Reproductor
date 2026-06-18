@@ -1,15 +1,26 @@
 from pathlib import Path
-import keyword
 import subprocess
-import threading
 import time
-
+import threading
+class Comandos:
+    def __init__(self):
+        self.params=["next","stop","help","salir","canciones"]
+        self.datos={
+            "next":"Para ir a la siguiente cancion.",
+            "stop":"Detener la reproduccion",
+            "help":"Mostrar ayuda."
+        }
+    def ayuda(self):
+        for k,v in self.datos.items():
+            print(f"{k}:{v}")
 class Reproductor:
     def __init__(self):
         self.boveda_canciones = Path("/home/dragon/Música/")
         self.motor="./reproductor"
         self.formatos=[".mp3",".ogg",".flac",".wav"]
         self.canciones=list()
+        self.estado_proceso=None
+        self.indice_actual=0
     def escanear_boveda(self):
         self.canciones=list()
         for archivo in self.boveda_canciones.rglob("*"):
@@ -17,41 +28,65 @@ class Reproductor:
                 self.canciones.append(archivo)
         if not self.canciones:
             print(f"No se han detectado canciones en tu carpeta {self.boveda_canciones}")
-    
-    def reproducir(self):
-        try:
-            seleccion=int(input('Selecciona un canción: '))
-            if 0<seleccion<=len(self.canciones):
-                subprocess.run([self.motor,str(self.canciones[seleccion-1])],check=True)
-                return True
-            elif seleccion==0:
-                return False
+    def vigilar_reproduccion(self):
+        while True:
+            if self.estado_proceso!=None:
+                if self.estado_proceso.poll() == None:
+                    pass
+                else:
+                    if self.indice_actual==len(self.canciones)-1:
+                        self.indice_actual=0
+                    else:
+                        self.indice_actual+=1
+                    self.reproducir()
             else:
-                print('Seleccione un valor valido')
-                return True
-        except ValueError:
-            print("Digite un numero de la lista por favor")
-            return True
-        except KeyboardInterrupt:
-            print("Se ha detenido la canción")
-        except Exception as e:
-            print(f"Ocurrio el sgte error {e}")
+                pass
+            time.sleep(1)
+    def reproducir(self):
+        if self.estado_proceso!=None:
+            self.estado_proceso.kill()
+        self.estado_proceso=subprocess.Popen([self.motor,str(self.canciones[self.indice_actual])])
+
     def menu_canciones(self):
+        clase_comandos=Comandos()
         self.escanear_boveda()
         if not self.canciones:
             return None
+        print('-'*40)
+        for i,cancion in enumerate(self.canciones):
+            print(f"[{i+1}] {cancion.name}")
+        print(f'[0] Salir')
+        print('-'*40)
+        hilo_vigilancia=threading.Thread(target=self.vigilar_reproduccion)
+        hilo_vigilancia.daemon=True
+        hilo_vigilancia.start()
         while True:
-            print('-'*40)
-            for i,cancion in enumerate(self.canciones):
-                print(f"[{i+1}] {cancion.name}")
-            print(f'[0] Salir')
-            print('-'*40)
-            if not self.reproducir():
-                print('Adios...')
-                break
-class Teclado:
-    def __init__(self):
-        self.siguiente
-        self.stop
-        self.anterior
-        self.pausa
+            comando=input(">> ")
+            if comando in clase_comandos.params:
+                if comando == clase_comandos.params[0]: #comando next
+                    if self.indice_actual==len(self.canciones)-1:
+                        self.indice_actual=0
+                    else:
+                        self.indice_actual+=1
+                    self.reproducir()
+                elif comando == clase_comandos.params[1]: #comando stop
+                    if self.estado_proceso!=None:self.estado_proceso.terminate()
+                    self.estado_proceso=None
+                elif comando == clase_comandos.params[2]: #comando help
+                    clase_comandos.ayuda()
+                elif comando == clase_comandos.params[3]: #comando salir
+                    print("Adios...")
+                    break
+                elif comando == clase_comandos.params[4]: #comando canciones
+                    print('-'*40)
+                    for i,cancion in enumerate(self.canciones):
+                        print(f"[{i+1}] {cancion.name}")
+                        print(f'[0] Salir')
+                    print('-'*40)
+            elif comando.isdigit():
+                if 0<=int(comando)-1<=len(self.canciones)-1:
+                    self.indice_actual=int(comando)-1
+                    self.reproducir()
+                else:
+                    print("Digita un numero correcto.Mas info con <canciones>")
+
